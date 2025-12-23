@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="id" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPK KNN - Analisis Inventaris</title>
+    
+    <!-- Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Tailwind Config for Custom Colors -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#301CA0',
+                        primaryHover: '#241480',
+                        secondary: '#64748B',
+                        darkBg: '#0F172A',
+                        darkCard: '#1E293B'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+        
+        /* Smooth Transitions */
+        .transition-all-300 {
+            transition: all 0.3s ease-in-out;
+        }
+
+        /* Animation */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-up {
+            animation: fadeUp 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-slate-800 dark:bg-darkBg dark:text-slate-200 transition-colors duration-300 font-sans overflow-hidden">
+
+    <div class="flex h-screen w-full">
+        
+        <!-- SIDEBAR -->
+        <aside id="sidebar" class="w-64 bg-white dark:bg-darkCard border-r border-slate-200 dark:border-slate-700 flex flex-col transition-all-300 hidden md:flex z-20 absolute md:relative h-full shadow-lg md:shadow-none">
+            <!-- Brand -->
+            <div class="h-16 flex items-center px-6 border-b border-slate-100 dark:border-slate-700">
+                <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white mr-3">
+                    <i data-lucide="activity" class="w-5 h-5"></i>
+                </div>
+                <h1 class="font-bold text-xl tracking-tight text-slate-900 dark:text-white">Smart<span class="text-primary">SPK</span></h1>
+            </div>
+
+            <!-- Menu -->
+            <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+                <p class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 mt-2">Menu Utama</p>
+                <button onclick="router('dashboard')" class="nav-item w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors group active-nav">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3 group-hover:text-primary transition-colors"></i>
+                    Dashboard
+                </button>
+                <button onclick="router('dataset')" class="nav-item w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors group">
+                    <i data-lucide="database" class="w-5 h-5 mr-3 group-hover:text-primary transition-colors"></i>
+                    Dataset Sarana
+                </button>
+                <button onclick="router('preprocessing')" class="nav-item w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors group">
+                    <i data-lucide="filter" class="w-5 h-5 mr-3 group-hover:text-primary transition-colors"></i>
+                    Preprocessing
+                </button>
+                <button onclick="router('process')" class="nav-item w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors group">
+                    <i data-lucide="calculator" class="w-5 h-5 mr-3 group-hover:text-primary transition-colors"></i>
+                    Proses KNN
+                </button>
+                <button onclick="router('history')" class="nav-item w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors group">
+                    <i data-lucide="history" class="w-5 h-5 mr-3 group-hover:text-primary transition-colors"></i>
+                    Riwayat
+                </button>
+
+                <p class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 mt-6">Pengguna</p>
+                <button onclick="router('profile')" class="nav-item w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors group">
+                    <i data-lucide="user" class="w-5 h-5 mr-3 group-hover:text-primary transition-colors"></i>
+                    Profil
+                </button>
+                <button class="w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors group mt-auto">
+                    <i data-lucide="log-out" class="w-5 h-5 mr-3"></i>
+                    Logout
+                </button>
+            </nav>
+
+            <!-- User Mini Profile -->
+            <div class="p-4 border-t border-slate-200 dark:border-slate-700">
+                <div class="flex items-center">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Admin" alt="User" class="w-9 h-9 rounded-full bg-slate-200">
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-slate-900 dark:text-white">Admin Utama</p>
+                        <p class="text-xs text-slate-500">Administrator</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <div class="flex-1 flex flex-col h-screen overflow-hidden relative">
+            
+            <!-- TOPBAR -->
+            <header class="h-16 bg-white dark:bg-darkCard border-b border-slate-200 dark:border-slate-700 flex items-center justify-between px-6 z-10">
+                <div class="flex items-center">
+                    <button id="sidebarToggle" class="md:hidden p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 mr-4">
+                        <i data-lucide="menu" class="w-6 h-6 text-slate-600 dark:text-slate-300"></i>
+                    </button>
+                    <h2 id="pageTitle" class="text-lg font-bold text-slate-800 dark:text-white">Overview</h2>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <!-- Search -->
+                    <div class="hidden md:flex relative">
+                        <input type="text" placeholder="Cari data..." class="pl-10 pr-4 py-2 bg-slate-100 dark:bg-slate-700/50 border-none rounded-lg text-sm focus:ring-2 focus:ring-primary w-64 outline-none text-slate-600 dark:text-slate-300">
+                        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
+                    </div>
+
+                    <!-- Theme Toggle -->
+                    <button id="themeToggle" class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-yellow-400 transition-colors">
+                        <i data-lucide="moon" class="w-5 h-5 hidden dark:block"></i>
+                        <i data-lucide="sun" class="w-5 h-5 block dark:hidden"></i>
+                    </button>
+
+                    <!-- Notifications -->
+                    <button class="relative p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500">
+                        <i data-lucide="bell" class="w-5 h-5"></i>
+                        <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-darkCard"></span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- CONTENT AREA -->
+            <main id="mainContent" class="flex-1 overflow-y-auto p-6 bg-slate-50 dark:bg-darkBg relative">
+                <!-- Dynamic Content Injected Here via JS -->
+            </main>
+
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // --- DATA & STATE ---
+        let state = {
+            activeTab: 'dashboard',
+            kValue: 3,
+            darkMode: false,
+            // Mock Dataset Inventaris
+            // Kondisi: 1 (Rusak Berat) - 5 (Sangat Baik)
+            // Status: 0 (Perlu Diganti), 1 (Layak)
+            dataset: [
+                { id: 1, nama: "Laptop Dell XPS", kondisi: 5, jumlah: 12, tahun: 2023, status: "Layak", statusVal: 1 },
+                { id: 2, nama: "Proyektor Epson", kondisi: 2, jumlah: 5, tahun: 2018, status: "Perlu Diganti", statusVal: 0 },
+                { id: 3, nama: "Meja Kantor Kayu", kondisi: 4, jumlah: 50, tahun: 2021, status: "Layak", statusVal: 1 },
+                { id: 4, nama: "Kursi Staff", kondisi: 1, jumlah: 20, tahun: 2015, status: "Perlu Diganti", statusVal: 0 },
+                { id: 5, nama: "AC Panasonic 2PK", kondisi: 3, jumlah: 8, tahun: 2019, status: "Perawatan", statusVal: 0.5 }, // 0.5 for testing logic
+                { id: 6, nama: "Printer HP LaserJet", kondisi: 5, jumlah: 3, tahun: 2023, status: "Layak", statusVal: 1 },
+                { id: 7, nama: "Router Cisco", kondisi: 4, jumlah: 10, tahun: 2020, status: "Layak", statusVal: 1 },
+                { id: 8, nama: "Lemari Arsip Besi", kondisi: 2, jumlah: 15, tahun: 2010, status: "Perlu Diganti", statusVal: 0 },
+            ],
+            history: []
+        };
+
+        // --- DOM ELEMENTS ---
+        const mainContent = document.getElementById('mainContent');
+        const pageTitle = document.getElementById('pageTitle');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const themeToggle = document.getElementById('themeToggle');
+        const navItems = document.querySelectorAll('.nav-item');
+
+        // --- UTILS ---
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
+
+        // --- ROUTING / RENDERER ---
+        function router(page) {
+            state.activeTab = page;
+            
+            // Update Active Nav Style
+            navItems.forEach(item => {
+                if(item.getAttribute('onclick').includes(page)) {
+                    item.classList.add('bg-primary/10', 'text-primary', 'dark:bg-primary/20', 'dark:text-primary-300');
+                    item.classList.remove('text-slate-600', 'dark:text-slate-400');
+                } else {
+                    item.classList.remove('bg-primary/10', 'text-primary', 'dark:bg-primary/20', 'dark:text-primary-300');
+                    item.classList.add('text-slate-600', 'dark:text-slate-400');
+                }
+            });
+
+            // Close sidebar on mobile
+            if(window.innerWidth < 768) {
+                sidebar.classList.add('hidden');
+            }
+
+            // Render Page
+            mainContent.innerHTML = '';
+            mainContent.scrollTop = 0;
+            
+            switch(page) {
+                case 'dashboard': renderDashboard(); break;
+                case 'dataset': renderDataset(); break;
+                case 'preprocessing': renderPreprocessing(); break;
+                case 'process': renderKNNProcess(); break;
+                case 'history': renderHistory(); break;
+                case 'profile': renderProfile(); break;
+                default: renderDashboard();
+            }
+            
+            // Re-init Icons
+            lucide.createIcons();
+        }
+
+        // --- PAGE RENDERS ---
+
+        function renderDashboard() {
+            pageTitle.innerText = "Dashboard Overview";
+            const totalData = state.dataset.length;
+            const layak = state.dataset.filter(d => d.status === "Layak").length;
+            const ganti = state.dataset.filter(d => d.status === "Perlu Diganti").length;
+
+            mainContent.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 animate-fade-up">
+                    <!-- Stat 1 -->
+                    <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 relative overflow-hidden">
+                        <div class="absolute right-0 top-0 h-full w-1 bg-primary"></div>
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Total Data Inventaris</p>
+                                <h3 class="text-3xl font-bold text-slate-800 dark:text-white mt-2">${totalData}</h3>
+                            </div>
+                            <div class="p-2 bg-primary/10 rounded-lg text-primary">
+                                <i data-lucide="database" class="w-6 h-6"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stat 2 -->
+                    <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Model K-Value</p>
+                                <h3 class="text-3xl font-bold text-slate-800 dark:text-white mt-2">K=${state.kValue}</h3>
+                            </div>
+                            <div class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400">
+                                <i data-lucide="settings-2" class="w-6 h-6"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stat 3 -->
+                    <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Status Layak</p>
+                                <h3 class="text-3xl font-bold text-emerald-600 mt-2">${layak}</h3>
+                            </div>
+                            <div class="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg text-emerald-600">
+                                <i data-lucide="check-circle" class="w-6 h-6"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stat 4 -->
+                    <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Perlu Diganti</p>
+                                <h3 class="text-3xl font-bold text-red-600 mt-2">${ganti}</h3>
+                            </div>
+                            <div class="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg text-red-600">
+                                <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Welcome Section -->
+                <div class="bg-gradient-to-r from-primary to-blue-600 rounded-2xl p-8 text-white shadow-lg animate-fade-up relative overflow-hidden">
+                    <div class="relative z-10">
+                        <h2 class="text-2xl font-bold mb-2">Selamat Datang di SPK Inventaris</h2>
+                        <p class="text-blue-100 max-w-2xl">Sistem Pendukung Keputusan menggunakan algoritma K-Nearest Neighbors (KNN) untuk menentukan kelayakan aset dan sarana berdasarkan kondisi, tahun, dan jumlah.</p>
+                        <button onclick="router('process')" class="mt-6 px-6 py-2.5 bg-white text-primary font-semibold rounded-lg shadow hover:bg-gray-100 transition-colors">
+                            Mulai Analisis
+                        </button>
+                    </div>
+                    <!-- Decor -->
+                    <i data-lucide="activity" class="absolute -right-6 -bottom-6 w-48 h-48 text-white opacity-10"></i>
+                </div>
+            `;
+        }
+
+        function renderDataset() {
+            pageTitle.innerText = "Dataset Sarana";
+            let rows = state.dataset.map(item => {
+                let badgeClass = item.status === 'Layak' 
+                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' 
+                    : (item.status === 'Perlu Diganti' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400');
+                
+                return `
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors border-b border-slate-100 dark:border-slate-700">
+                    <td class="px-6 py-4 text-sm font-medium text-slate-900 dark:text-white">${item.nama}</td>
+                    <td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">${item.tahun}</td>
+                    <td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">
+                        <div class="flex items-center">
+                            <span class="w-20 bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden mr-2">
+                                <div class="bg-primary h-full" style="width: ${(item.kondisi/5)*100}%"></div>
+                            </span>
+                            ${item.kondisi}/5
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">${item.jumlah} Unit</td>
+                    <td class="px-6 py-4">
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full ${badgeClass}">
+                            ${item.status}
+                        </span>
+                    </td>
+                </tr>
+                `;
+            }).join('');
+
+            mainContent.innerHTML = `
+                <div class="bg-white dark:bg-darkCard rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col h-full animate-fade-up">
+                    <div class="p-6 border-b border-slate-100 dark:border-slate-700 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <h3 class="font-bold text-lg text-slate-800 dark:text-white">Data Inventaris</h3>
+                        <div class="flex gap-2">
+                            <button class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 dark:text-slate-300 flex items-center">
+                                <i data-lucide="upload" class="w-4 h-4 mr-2"></i> Import CSV
+                            </button>
+                            <button class="px-4 py-2 bg-primary hover:bg-primaryHover text-white rounded-lg text-sm font-medium flex items-center transition-colors">
+                                <i data-lucide="plus" class="w-4 h-4 mr-2"></i> Tambah Data
+                            </button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto flex-1">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 dark:bg-slate-800/50">
+                                    <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Nama Sarana</th>
+                                    <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Tahun</th>
+                                    <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Kondisi</th>
+                                    <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Jumlah</th>
+                                    <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status (Label)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                                ${rows}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="p-4 border-t border-slate-100 dark:border-slate-700 flex justify-between items-center text-sm text-slate-500">
+                        <span>Menampilkan ${state.dataset.length} data</span>
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-1 border rounded hover:bg-slate-50 dark:border-slate-600 dark:hover:bg-slate-700 disabled:opacity-50" disabled>Previous</button>
+                            <button class="px-3 py-1 border rounded hover:bg-slate-50 dark:border-slate-600 dark:hover:bg-slate-700 disabled:opacity-50" disabled>Next</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderPreprocessing() {
+            pageTitle.innerText = "Preprocessing Data";
+            mainContent.innerHTML = `
+                <div class="space-y-6 animate-fade-up">
+                    <!-- Steps -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-white dark:bg-darkCard p-5 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm relative">
+                            <div class="flex items-center mb-3">
+                                <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold mr-3">1</div>
+                                <h4 class="font-semibold dark:text-white">Data Cleaning</h4>
+                            </div>
+                            <p class="text-sm text-slate-500">Memastikan tidak ada missing value pada kolom kondisi dan tahun.</p>
+                            <div class="mt-3">
+                                <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded font-bold">Done</span>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-darkCard p-5 rounded-xl border-2 border-primary/20 shadow-sm relative">
+                            <div class="flex items-center mb-3">
+                                <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold mr-3">2</div>
+                                <h4 class="font-semibold text-primary">Normalisasi (Min-Max)</h4>
+                            </div>
+                            <p class="text-sm text-slate-500">Mengubah range nilai fitur numerik (Tahun, Kondisi, Jumlah) ke skala 0-1.</p>
+                            <div class="mt-3">
+                                <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded font-bold">Active View</span>
+                            </div>
+                        </div>
+                         <div class="bg-white dark:bg-darkCard p-5 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm relative">
+                            <div class="flex items-center mb-3">
+                                <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center font-bold mr-3">3</div>
+                                <h4 class="font-semibold dark:text-white">Splitting Data</h4>
+                            </div>
+                            <p class="text-sm text-slate-500">Membagi dataset menjadi Data Training dan Data Testing (default 80:20).</p>
+                        </div>
+                    </div>
+
+                    <!-- Visualization -->
+                    <div class="bg-white dark:bg-darkCard rounded-xl shadow-sm p-6 border border-slate-100 dark:border-slate-700">
+                        <h3 class="font-bold text-lg mb-4 text-slate-800 dark:text-white">Visualisasi Normalisasi</h3>
+                        <p class="text-slate-500 text-sm mb-6">Rumus Min-Max: <code class="bg-slate-100 dark:bg-slate-700 px-1 py-0.5 rounded text-primary">x' = (x - min(x)) / (max(x) - min(x))</code></p>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm text-left">
+                                <thead class="bg-slate-50 dark:bg-slate-800 text-xs uppercase text-slate-500">
+                                    <tr>
+                                        <th class="px-4 py-3">Nama Sarana</th>
+                                        <th class="px-4 py-3">Kondisi (Raw)</th>
+                                        <th class="px-4 py-3 text-primary">Kondisi (Norm)</th>
+                                        <th class="px-4 py-3">Jumlah (Raw)</th>
+                                        <th class="px-4 py-3 text-primary">Jumlah (Norm)</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                                    <tr class="dark:text-slate-300">
+                                        <td class="px-4 py-3 font-medium">Laptop Dell XPS</td>
+                                        <td class="px-4 py-3">5</td>
+                                        <td class="px-4 py-3 font-mono text-primary">1.00</td>
+                                        <td class="px-4 py-3">12</td>
+                                        <td class="px-4 py-3 font-mono text-primary">0.24</td>
+                                    </tr>
+                                    <tr class="dark:text-slate-300 bg-slate-50/50 dark:bg-slate-800/30">
+                                        <td class="px-4 py-3 font-medium">Proyektor Epson</td>
+                                        <td class="px-4 py-3">2</td>
+                                        <td class="px-4 py-3 font-mono text-primary">0.25</td>
+                                        <td class="px-4 py-3">5</td>
+                                        <td class="px-4 py-3 font-mono text-primary">0.10</td>
+                                    </tr>
+                                    <tr class="dark:text-slate-300">
+                                        <td class="px-4 py-3 font-medium">Kursi Staff</td>
+                                        <td class="px-4 py-3">1</td>
+                                        <td class="px-4 py-3 font-mono text-primary">0.00</td>
+                                        <td class="px-4 py-3">20</td>
+                                        <td class="px-4 py-3 font-mono text-primary">0.40</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderKNNProcess() {
+            pageTitle.innerText = "Proses Klasifikasi KNN";
+            mainContent.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-up">
+                    
+                    <!-- Input Section -->
+                    <div class="lg:col-span-1 space-y-6">
+                        <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
+                            <h3 class="font-bold text-lg mb-4 text-slate-800 dark:text-white flex items-center">
+                                <i data-lucide="sliders" class="w-5 h-5 mr-2 text-primary"></i> Parameter Input
+                            </h3>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nilai K (Tetangga)</label>
+                                    <div class="flex items-center gap-2">
+                                        <input type="range" min="1" max="7" step="2" value="${state.kValue}" id="kSlider" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-primary" oninput="updateKDisplay(this.value)">
+                                        <span id="kDisplay" class="font-bold text-primary w-8 text-center">${state.kValue}</span>
+                                    </div>
+                                    <p class="text-xs text-slate-400 mt-1">Gunakan angka ganjil untuk menghindari seri.</p>
+                                </div>
+
+                                <hr class="border-slate-100 dark:border-slate-700">
+
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Kondisi (1-5)</label>
+                                    <select id="inputKondisi" class="w-full rounded-lg border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 py-2 px-3 text-sm focus:ring-primary focus:border-primary dark:text-white">
+                                        <option value="5">5 - Sangat Baik</option>
+                                        <option value="4">4 - Baik</option>
+                                        <option value="3">3 - Cukup</option>
+                                        <option value="2">2 - Buruk</option>
+                                        <option value="1">1 - Rusak Berat</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Jumlah Unit</label>
+                                    <input type="number" id="inputJumlah" value="10" class="w-full rounded-lg border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 py-2 px-3 text-sm focus:ring-primary focus:border-primary dark:text-white">
+                                </div>
+                                
+                                <button onclick="calculateKNN()" class="w-full bg-primary hover:bg-primaryHover text-white font-semibold py-2.5 rounded-lg shadow transition-all transform active:scale-95 flex justify-center items-center">
+                                    <i data-lucide="calculator" class="w-4 h-4 mr-2"></i> Hitung Klasifikasi
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Info Card -->
+                        <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-800">
+                            <h4 class="font-semibold text-blue-800 dark:text-blue-300 text-sm mb-2">Metode: Euclidean Distance</h4>
+                            <p class="text-xs text-blue-600 dark:text-blue-400">
+                                Sistem menghitung akar kuadrat dari selisih kuadrat antara data uji dan data latih.
+                                <br><br>
+                                <span class="font-mono bg-white dark:bg-slate-900 px-1 rounded">d(x,y) = √Σ(xi - yi)²</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Result Section (Initially Placeholder) -->
+                    <div class="lg:col-span-2 space-y-6" id="resultContainer">
+                        <div class="h-full flex flex-col items-center justify-center bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-dashed border-slate-300 dark:border-slate-600 min-h-[400px]">
+                            <div class="p-4 bg-white dark:bg-slate-700 rounded-full mb-4 shadow-sm">
+                                <i data-lucide="bar-chart-2" class="w-8 h-8 text-slate-400"></i>
+                            </div>
+                            <p class="text-slate-500 font-medium">Masukkan data dan tekan "Hitung" untuk melihat hasil.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function updateKDisplay(val) {
+            document.getElementById('kDisplay').innerText = val;
+            state.kValue = parseInt(val);
+        }
+
+        function calculateKNN() {
+            const inputKondisi = parseInt(document.getElementById('inputKondisi').value);
+            const inputJumlah = parseInt(document.getElementById('inputJumlah').value);
+            const resultContainer = document.getElementById('resultContainer');
+            
+            // 1. Normalize Input (Simple simulation based on mock range)
+            // Range Kondisi: 1-5, Range Jumlah: 0-100 (Assumed)
+            const normKondisi = (inputKondisi - 1) / (5 - 1); 
+            const normJumlah = (inputJumlah - 0) / (100 - 0);
+
+            // 2. Calculate Distances
+            let distances = state.dataset.map(data => {
+                // Normalize dataset items
+                let dNormKondisi = (data.kondisi - 1) / 4;
+                let dNormJumlah = (data.jumlah - 0) / 100;
+
+                // Euclidean
+                let distance = Math.sqrt(
+                    Math.pow(normKondisi - dNormKondisi, 2) + 
+                    Math.pow(normJumlah - dNormJumlah, 2)
+                );
+
+                return { ...data, distance: distance };
+            });
+
+            // 3. Sort by Distance
+            distances.sort((a, b) => a.distance - b.distance);
+
+            // 4. Get K Neighbors
+            const neighbors = distances.slice(0, state.kValue);
+
+            // 5. Vote
+            let voteLayak = neighbors.filter(n => n.status === "Layak").length;
+            let voteGanti = neighbors.filter(n => n.status === "Perlu Diganti").length;
+            let finalStatus = voteLayak >= voteGanti ? "Layak Digunakan" : "Perlu Diganti";
+            let confidence = ((Math.max(voteLayak, voteGanti) / state.kValue) * 100).toFixed(1);
+
+            let resultColor = finalStatus === "Layak Digunakan" ? "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200" : "text-red-600 bg-red-50 dark:bg-red-900/20 border-red-200";
+            let iconResult = finalStatus === "Layak Digunakan" ? "check-circle" : "alert-octagon";
+
+            // Render Result
+            let neighborsHtml = neighbors.map((n, i) => `
+                <tr class="border-b border-slate-100 dark:border-slate-700 text-sm animate-fade-up" style="animation-delay: ${i * 100}ms">
+                    <td class="py-2 px-3 font-medium text-slate-700 dark:text-slate-300">#${i+1}</td>
+                    <td class="py-2 px-3 text-slate-600 dark:text-slate-400">${n.nama}</td>
+                    <td class="py-2 px-3 text-slate-600 dark:text-slate-400 text-right font-mono">${n.distance.toFixed(4)}</td>
+                    <td class="py-2 px-3 text-right">
+                        <span class="text-xs px-2 py-1 rounded-full ${n.status === 'Layak' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}">
+                            ${n.status}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+
+            resultContainer.innerHTML = `
+                <!-- Main Result Card -->
+                <div class="bg-white dark:bg-darkCard rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden animate-fade-up">
+                    <div class="p-6 text-center border-b border-slate-100 dark:border-slate-700">
+                        <p class="text-slate-500 text-sm uppercase tracking-wide font-semibold mb-2">Hasil Rekomendasi</p>
+                        <div class="inline-flex items-center justify-center p-4 rounded-full mb-4 ${resultColor} border-4">
+                            <i data-lucide="${iconResult}" class="w-10 h-10"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-slate-800 dark:text-white mb-1">${finalStatus}</h2>
+                        <p class="text-slate-500">Confidence Level: <span class="font-bold text-primary">${confidence}%</span> dari ${state.kValue} Tetangga</p>
+                    </div>
+                    
+                    <div class="bg-slate-50 dark:bg-slate-800/50 p-6">
+                        <h4 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-4 flex items-center">
+                            <i data-lucide="users" class="w-4 h-4 mr-2"></i> ${state.kValue} Tetangga Terdekat (Nearest Neighbors)
+                        </h4>
+                        <div class="bg-white dark:bg-darkCard rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
+                            <table class="w-full">
+                                <thead class="bg-slate-100 dark:bg-slate-800 text-xs font-semibold text-slate-500 uppercase">
+                                    <tr>
+                                        <th class="py-2 px-3 text-left">Rank</th>
+                                        <th class="py-2 px-3 text-left">Nama Sarana</th>
+                                        <th class="py-2 px-3 text-right">Jarak (Euclidean)</th>
+                                        <th class="py-2 px-3 text-right">Label</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${neighborsHtml}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex gap-4 animate-fade-up" style="animation-delay: 200ms">
+                    <button onclick="router('dataset')" class="flex-1 py-3 bg-white dark:bg-darkCard border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-700">
+                        Lihat Dataset
+                    </button>
+                    <button onclick="renderKNNProcess()" class="flex-1 py-3 bg-slate-800 hover:bg-slate-900 text-white rounded-lg shadow-sm font-medium">
+                        Reset Kalkulasi
+                    </button>
+                </div>
+            `;
+            
+            // Add to history
+            state.history.unshift({
+                date: new Date().toLocaleDateString('id-ID'),
+                k: state.kValue,
+                input: `Kondisi: ${inputKondisi}, Jml: ${inputJumlah}`,
+                result: finalStatus
+            });
+            
+            lucide.createIcons();
+        }
+
+        function renderHistory() {
+            pageTitle.innerText = "Riwayat Perhitungan";
+            
+            let historyHtml = state.history.length > 0 ? state.history.map(h => `
+                <div class="bg-white dark:bg-darkCard p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 animate-fade-up">
+                    <div class="flex items-center gap-4">
+                        <div class="p-3 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-500">
+                            <i data-lucide="file-clock" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-slate-800 dark:text-white">${h.result}</p>
+                            <p class="text-xs text-slate-500">${h.date} • K=${h.k} • Input: ${h.input}</p>
+                        </div>
+                    </div>
+                    <button class="px-3 py-1 text-xs border border-slate-200 dark:border-slate-600 rounded hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400">Detail</button>
+                </div>
+            `).join('') : `
+                <div class="text-center py-12 text-slate-400">
+                    <i data-lucide="inbox" class="w-12 h-12 mx-auto mb-3 opacity-50"></i>
+                    <p>Belum ada riwayat perhitungan.</p>
+                </div>
+            `;
+
+            mainContent.innerHTML = `
+                <div class="space-y-4 max-w-3xl mx-auto">
+                   ${historyHtml}
+                </div>
+            `;
+        }
+
+        function renderProfile() {
+            pageTitle.innerText = "Profil Pengguna";
+            mainContent.innerHTML = `
+                <div class="max-w-2xl mx-auto animate-fade-up">
+                    <div class="bg-white dark:bg-darkCard rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
+                        <div class="h-32 bg-gradient-to-r from-primary to-purple-600"></div>
+                        <div class="px-8 pb-8">
+                            <div class="relative -top-12 mb-[-30px]">
+                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Admin" class="w-24 h-24 rounded-full border-4 border-white dark:border-darkCard bg-slate-200">
+                            </div>
+                            
+                            <div class="flex justify-between items-end mb-6">
+                                <div>
+                                    <h2 class="text-2xl font-bold text-slate-900 dark:text-white mt-4">Admin Utama</h2>
+                                    <p class="text-slate-500">Super Administrator</p>
+                                </div>
+                                <button class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primaryHover transition">Edit Profil</button>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700">
+                                        <p class="text-xs text-slate-500 uppercase">Username</p>
+                                        <p class="font-medium text-slate-800 dark:text-slate-200">admin_spk</p>
+                                    </div>
+                                    <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700">
+                                        <p class="text-xs text-slate-500 uppercase">Email</p>
+                                        <p class="font-medium text-slate-800 dark:text-slate-200">admin@kampus.ac.id</p>
+                                    </div>
+                                    <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700">
+                                        <p class="text-xs text-slate-500 uppercase">Role</p>
+                                        <p class="font-medium text-slate-800 dark:text-slate-200">Kepala Bagian Sarana</p>
+                                    </div>
+                                    <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700">
+                                        <p class="text-xs text-slate-500 uppercase">Terdaftar Sejak</p>
+                                        <p class="font-medium text-slate-800 dark:text-slate-200">Januari 2024</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- THEME TOGGLE LOGIC ---
+        themeToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            state.darkMode = !state.darkMode;
+        });
+
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('hidden');
+        });
+
+        // --- INIT ---
+        // Load default page
+        router('dashboard');
+
+    </script>
+</body>
+</html>
