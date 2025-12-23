@@ -7,13 +7,34 @@
 <div class="bg-white dark:bg-darkCard rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col h-full animate-fade-up">
     <div class="p-6 border-b border-slate-100 dark:border-slate-700 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <h3 class="font-bold text-lg text-slate-800 dark:text-white">Data Inventaris</h3>
-        <div class="flex gap-2">
-            <button onclick="document.getElementById('importModal').classList.remove('hidden')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-medium flex items-center transition-colors">
-                <i data-lucide="upload" class="w-4 h-4 mr-2"></i> Import Data
-            </button>
-            <button onclick="document.getElementById('addModal').classList.remove('hidden')" class="px-4 py-2 bg-primary hover:bg-primaryHover text-white rounded-lg text-sm font-medium flex items-center transition-colors">
-                <i data-lucide="plus" class="w-4 h-4 mr-2"></i> Tambah Data
-            </button>
+        <div class="flex flex-col md:flex-row gap-2 md:items-center">
+            <!-- Search Form -->
+            <form action="{{ route('dataset.index') }}" method="GET" class="flex gap-2">
+                <input type="hidden" name="per_page" value="{{ $perPage }}">
+                <div class="relative">
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama, tahun, status..." 
+                        class="pl-10 pr-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm focus:ring-primary focus:border-primary dark:text-white w-full md:w-64">
+                    <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                </div>
+                <button type="submit" class="px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg text-sm font-medium flex items-center transition-colors">
+                    <i data-lucide="search" class="w-4 h-4 md:mr-2"></i>
+                    <span class="hidden md:inline">Cari</span>
+                </button>
+                @if(request('search'))
+                <a href="{{ route('dataset.index', ['per_page' => $perPage]) }}" class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 dark:text-slate-300 flex items-center transition-colors">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </a>
+                @endif
+            </form>
+            
+            <div class="flex gap-2">
+                <button onclick="document.getElementById('importModal').classList.remove('hidden')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-medium flex items-center transition-colors">
+                    <i data-lucide="upload" class="w-4 h-4 mr-2"></i> Import Data
+                </button>
+                <button onclick="document.getElementById('addModal').classList.remove('hidden')" class="px-4 py-2 bg-primary hover:bg-primaryHover text-white rounded-lg text-sm font-medium flex items-center transition-colors">
+                    <i data-lucide="plus" class="w-4 h-4 mr-2"></i> Tambah Data
+                </button>
+            </div>
         </div>
     </div>
     
@@ -75,25 +96,109 @@
                         </span>
                     </td>
                     <td class="px-6 py-4">
-                        <form action="{{ route('dataset.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data ini?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="text-red-600 hover:text-red-800">
-                                <i data-lucide="trash-2" class="w-4 h-4"></i>
-                            </button>
-                        </form>
+                        <div class="flex items-center gap-2">
+                            <a href="{{ route('dataset.edit', $item->id) }}" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300" title="Edit">
+                                <i data-lucide="pencil" class="w-4 h-4"></i>
+                            </a>
+                            <form action="{{ route('dataset.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data ini?')" class="inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300" title="Hapus">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" class="px-6 py-8 text-center text-slate-500">Tidak ada data inventaris</td>
+                    <td colspan="6" class="px-6 py-8 text-center text-slate-500">
+                        @if(request('search'))
+                            Tidak ada data yang cocok dengan pencarian "{{ request('search') }}"
+                        @else
+                            Tidak ada data inventaris
+                        @endif
+                    </td>
                 </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
-    <div class="p-4 border-t border-slate-100 dark:border-slate-700 flex justify-between items-center text-sm text-slate-500">
-        <span>Menampilkan {{ $dataset->count() }} data</span>
+    
+    <!-- Pagination Section -->
+    <div class="p-4 border-t border-slate-100 dark:border-slate-700 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-500">
+        <div class="flex items-center gap-4">
+            <span>Menampilkan {{ $dataset->firstItem() ?? 0 }} - {{ $dataset->lastItem() ?? 0 }} dari {{ $dataset->total() }} data</span>
+            
+            <!-- Per Page Selector -->
+            <form action="{{ route('dataset.index') }}" method="GET" class="flex items-center gap-2">
+                @if(request('search'))
+                <input type="hidden" name="search" value="{{ request('search') }}">
+                @endif
+                <label class="text-slate-600 dark:text-slate-400">Tampilkan:</label>
+                <select name="per_page" onchange="this.form.submit()" class="rounded-lg border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 py-1 px-3 text-sm focus:ring-primary focus:border-primary dark:text-white">
+                    @foreach([5, 10, 50, 100] as $option)
+                    <option value="{{ $option }}" {{ $perPage == $option ? 'selected' : '' }}>{{ $option }}</option>
+                    @endforeach
+                </select>
+            </form>
+        </div>
+        
+        <!-- Pagination Links -->
+        @if($dataset->hasPages())
+        <div class="flex items-center gap-1">
+            {{-- Previous Page Link --}}
+            @if ($dataset->onFirstPage())
+                <span class="px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-400 cursor-not-allowed">
+                    <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                </span>
+            @else
+                <a href="{{ $dataset->previousPageUrl() }}" class="px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-primary hover:text-white transition-colors">
+                    <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                </a>
+            @endif
+
+            {{-- Page Numbers --}}
+            @php
+                $start = max($dataset->currentPage() - 2, 1);
+                $end = min($start + 4, $dataset->lastPage());
+                $start = max($end - 4, 1);
+            @endphp
+
+            @if($start > 1)
+                <a href="{{ $dataset->url(1) }}" class="px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-primary hover:text-white transition-colors">1</a>
+                @if($start > 2)
+                    <span class="px-2 text-slate-400">...</span>
+                @endif
+            @endif
+
+            @for ($i = $start; $i <= $end; $i++)
+                @if ($i == $dataset->currentPage())
+                    <span class="px-3 py-1 rounded-lg bg-primary text-white font-medium">{{ $i }}</span>
+                @else
+                    <a href="{{ $dataset->url($i) }}" class="px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-primary hover:text-white transition-colors">{{ $i }}</a>
+                @endif
+            @endfor
+
+            @if($end < $dataset->lastPage())
+                @if($end < $dataset->lastPage() - 1)
+                    <span class="px-2 text-slate-400">...</span>
+                @endif
+                <a href="{{ $dataset->url($dataset->lastPage()) }}" class="px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-primary hover:text-white transition-colors">{{ $dataset->lastPage() }}</a>
+            @endif
+
+            {{-- Next Page Link --}}
+            @if ($dataset->hasMorePages())
+                <a href="{{ $dataset->nextPageUrl() }}" class="px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-primary hover:text-white transition-colors">
+                    <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                </a>
+            @else
+                <span class="px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-400 cursor-not-allowed">
+                    <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                </span>
+            @endif
+        </div>
+        @endif
     </div>
 </div>
 
