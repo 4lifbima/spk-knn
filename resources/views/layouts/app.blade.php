@@ -68,6 +68,22 @@
         .animate-fade-up {
             animation: fadeUp 0.4s ease-out forwards;
         }
+        
+        /* Modal Animation */
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: scale(0.95) translateY(-10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .modal-backdrop {
+            animation: modalFadeIn 0.2s ease-out forwards;
+        }
+        .modal-content {
+            animation: modalSlideIn 0.25s ease-out forwards;
+        }
     </style>
     @stack('styles')
 </head>
@@ -126,13 +142,10 @@
                     Pengaturan
                 </a>
                 
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors group mt-auto">
-                        <i data-lucide="log-out" class="w-5 h-5 mr-3"></i>
-                        Logout
-                    </button>
-                </form>
+                <button onclick="document.getElementById('logoutModal').classList.remove('hidden')" type="button" class="w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors group mt-auto">
+                    <i data-lucide="log-out" class="w-5 h-5 mr-3"></i>
+                    Keluar
+                </button>
             </nav>
 
             <!-- User Mini Profile -->
@@ -164,12 +177,6 @@
                 </div>
 
                 <div class="flex items-center space-x-4">
-                    <!-- Search -->
-                    <div class="hidden md:flex relative">
-                        <input type="text" placeholder="Cari data..." class="pl-10 pr-4 py-2 bg-slate-100 dark:bg-slate-700/50 border-none rounded-lg text-sm focus:ring-2 focus:ring-primary w-64 outline-none text-slate-600 dark:text-slate-300">
-                        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
-                    </div>
-
                     <!-- Theme Toggle -->
                     <button id="themeToggle" class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-yellow-400 transition-colors">
                         <i data-lucide="moon" class="w-5 h-5 hidden dark:block"></i>
@@ -189,6 +196,41 @@
                 @yield('content')
             </main>
 
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div id="logoutModal" class="hidden fixed inset-0 z-50 flex items-center justify-center">
+        <!-- Backdrop -->
+        <div class="modal-backdrop absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="document.getElementById('logoutModal').classList.add('hidden')"></div>
+        
+        <!-- Modal Content -->
+        <div class="modal-content relative bg-white dark:bg-darkCard rounded-2xl shadow-2xl max-w-sm w-full mx-4 overflow-hidden">
+            <!-- Icon Header -->
+            <div class="pt-8 pb-4 flex justify-center">
+                <div class="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                    <i data-lucide="log-out" class="w-8 h-8 text-red-600 dark:text-red-400"></i>
+                </div>
+            </div>
+            
+            <!-- Content -->
+            <div class="px-6 pb-6 text-center">
+                <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2">Konfirmasi Keluar</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400">Apakah Anda yakin ingin mengakhiri sesi ini?</p>
+            </div>
+            
+            <!-- Actions -->
+            <div class="flex border-t border-slate-200 dark:border-slate-700">
+                <button type="button" onclick="document.getElementById('logoutModal').classList.add('hidden')" class="flex-1 py-4 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                    Batal
+                </button>
+                <form method="POST" action="{{ route('logout') }}" class="flex-1 border-l border-slate-200 dark:border-slate-700">
+                    @csrf
+                    <button type="submit" class="w-full py-4 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                        Ya, Keluar
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 

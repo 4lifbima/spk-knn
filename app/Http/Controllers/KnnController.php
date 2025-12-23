@@ -81,6 +81,59 @@ class KnnController extends Controller
 
     public function preprocessing()
     {
-        return view('dashboard.preprocessing');
+        // Get all data from inventaris
+        $dataset = Inventaris::all();
+        
+        if ($dataset->isEmpty()) {
+            return view('dashboard.preprocessing', [
+                'dataset' => collect([]),
+                'stats' => null,
+                'normalized' => collect([]),
+            ]);
+        }
+        
+        // Calculate Min and Max for each feature
+        $stats = [
+            'kondisi' => [
+                'min' => $dataset->min('kondisi'),
+                'max' => $dataset->max('kondisi'),
+            ],
+            'jumlah' => [
+                'min' => $dataset->min('jumlah'),
+                'max' => $dataset->max('jumlah'),
+            ],
+            'tahun' => [
+                'min' => $dataset->min('tahun'),
+                'max' => $dataset->max('tahun'),
+            ],
+        ];
+        
+        // Apply Min-Max Normalization: x' = (x - min) / (max - min)
+        $normalized = $dataset->map(function ($item) use ($stats) {
+            // Calculate normalized values (handle division by zero)
+            $kondisiRange = $stats['kondisi']['max'] - $stats['kondisi']['min'];
+            $jumlahRange = $stats['jumlah']['max'] - $stats['jumlah']['min'];
+            $tahunRange = $stats['tahun']['max'] - $stats['tahun']['min'];
+            
+            return [
+                'id' => $item->id,
+                'nama' => $item->nama,
+                'kondisi_raw' => $item->kondisi,
+                'kondisi_norm' => $kondisiRange > 0 
+                    ? round(($item->kondisi - $stats['kondisi']['min']) / $kondisiRange, 4) 
+                    : 0,
+                'jumlah_raw' => $item->jumlah,
+                'jumlah_norm' => $jumlahRange > 0 
+                    ? round(($item->jumlah - $stats['jumlah']['min']) / $jumlahRange, 4) 
+                    : 0,
+                'tahun_raw' => $item->tahun,
+                'tahun_norm' => $tahunRange > 0 
+                    ? round(($item->tahun - $stats['tahun']['min']) / $tahunRange, 4) 
+                    : 0,
+                'status' => $item->status,
+            ];
+        });
+        
+        return view('dashboard.preprocessing', compact('dataset', 'stats', 'normalized'));
     }
 }
