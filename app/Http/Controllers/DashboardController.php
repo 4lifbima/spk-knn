@@ -13,8 +13,9 @@ class DashboardController extends Controller
         $totalData = Inventaris::count();
         $layak = Inventaris::where('status', 'Layak')->count();
         $ganti = Inventaris::where('status', 'Perlu Diganti')->count();
+        $perawatan = Inventaris::where('status', 'Perlu Perawatan')->count();
         $kValue = 3;
 
-        return view('dashboard.index', compact('totalData', 'layak', 'ganti', 'kValue'));
+        return view('dashboard.index', compact('totalData', 'layak', 'ganti', 'perawatan', 'kValue'));
     }
 }

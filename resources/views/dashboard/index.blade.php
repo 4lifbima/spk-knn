@@ -23,11 +23,11 @@
     <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
         <div class="flex justify-between items-start">
             <div>
-                <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Model K-Value</p>
-                <h3 class="text-3xl font-bold text-slate-800 dark:text-white mt-2">K={{ $kValue }}</h3>
+                <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Perlu perawatan</p>
+                <h3 class="text-3xl font-bold text-slate-800 dark:text-white mt-2">{{ $perawatan }}</h3>
             </div>
-            <div class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400">
-                <i data-lucide="settings-2" class="w-6 h-6"></i>
+            <div class="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg text-yellow-600 dark:text-yellow-400">
+                <i data-lucide="alert-triangle" class="w-6 h-6"></i>
             </div>
         </div>
     </div>

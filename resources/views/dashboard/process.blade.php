@@ -27,19 +27,30 @@
                 <hr class="border-slate-100 dark:border-slate-700">
 
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Kondisi (1-5)</label>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Kondisi Sarana</label>
                     <select id="inputKondisi" name="kondisi" class="w-full rounded-lg border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 py-2 px-3 text-sm focus:ring-primary focus:border-primary dark:text-white">
-                        <option value="5">5 - Sangat Baik</option>
-                        <option value="4">4 - Baik</option>
-                        <option value="3">3 - Cukup</option>
-                        <option value="2">2 - Buruk</option>
-                        <option value="1">1 - Rusak Berat</option>
+                        <option value="Baik">Baik</option>
+                        <option value="Rusak Ringan">Rusak Ringan</option>
+                        <option value="Rusak Berat">Rusak Berat</option>
                     </select>
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Jumlah Unit</label>
-                    <input type="number" id="inputJumlah" name="jumlah" value="10" min="1" class="w-full rounded-lg border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 py-2 px-3 text-sm focus:ring-primary focus:border-primary dark:text-white">
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tingkat Pemanfaatan</label>
+                    <select id="inputPemanfaatan" name="pemanfaatan" class="w-full rounded-lg border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 py-2 px-3 text-sm focus:ring-primary focus:border-primary dark:text-white">
+                        <option value="Sering Digunakan">Sering Digunakan</option>
+                        <option value="Kadang Digunakan">Kadang Digunakan</option>
+                        <option value="Tidak Digunakan">Tidak Digunakan</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tingkat Kebutuhan</label>
+                    <select id="inputKebutuhan" name="kebutuhan" class="w-full rounded-lg border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 py-2 px-3 text-sm focus:ring-primary focus:border-primary dark:text-white">
+                        <option value="Sangat Dibutuhkan">Sangat Dibutuhkan</option>
+                        <option value="Dibutuhkan">Dibutuhkan</option>
+                        <option value="Sangat Tidak Dibutuhkan">Sangat Tidak Dibutuhkan</option>
+                    </select>
                 </div>
                 
                 <button type="submit" class="w-full bg-primary hover:bg-primaryHover text-white font-semibold py-2.5 rounded-lg shadow transition-all transform active:scale-95 flex justify-center items-center">
@@ -52,9 +63,9 @@
         <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-800">
             <h4 class="font-semibold text-blue-800 dark:text-blue-300 text-sm mb-2">Metode: Euclidean Distance</h4>
             <p class="text-xs text-blue-600 dark:text-blue-400">
-                Sistem menghitung akar kuadrat dari selisih kuadrat antara data uji dan data latih.
+                Sistem menghitung jarak 3 dimensi (Kondisi, Pemanfaatan, Kebutuhan) antara data uji dan data latih.
                 <br><br>
-                <span class="font-mono bg-white dark:bg-slate-900 px-1 rounded">d(x,y) = √Σ(xi - yi)²</span>
+                <span class="font-mono bg-white dark:bg-slate-900 px-1 rounded">d = √[(K₁-K₂)² + (P₁-P₂)² + (B₁-B₂)²]</span>
             </p>
         </div>
     </div>
@@ -108,11 +119,18 @@ knnForm.addEventListener('submit', async (e) => {
 });
 
 function displayResult(data) {
-    const resultColor = data.result === 'Layak Digunakan' 
-        ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200' 
-        : 'text-red-600 bg-red-50 dark:bg-red-900/20 border-red-200';
+    let resultColor, iconResult;
     
-    const iconResult = data.result === 'Layak Digunakan' ? 'check-circle' : 'alert-octagon';
+    if (data.result === 'Layak Digunakan') {
+        resultColor = 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200';
+        iconResult = 'check-circle';
+    } else if (data.result === 'Perlu Perawatan') {
+        resultColor = 'text-yellow-600 bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200';
+        iconResult = 'alert-triangle';
+    } else {
+        resultColor = 'text-red-600 bg-red-50 dark:bg-red-900/20 border-red-200';
+        iconResult = 'alert-octagon';
+    }
     
     const neighborsHtml = data.neighbors.map((n, i) => `
         <tr class="border-b border-slate-100 dark:border-slate-700 text-sm">
@@ -120,7 +138,7 @@ function displayResult(data) {
             <td class="py-2 px-3 text-slate-600 dark:text-slate-400">${n.nama}</td>
             <td class="py-2 px-3 text-slate-600 dark:text-slate-400 text-right font-mono">${n.distance.toFixed(4)}</td>
             <td class="py-2 px-3 text-right">
-                <span class="text-xs px-2 py-1 rounded-full ${n.status === 'Layak' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}">
+                <span class="text-xs px-2 py-1 rounded-full ${n.status === 'Layak' ? 'bg-emerald-100 text-emerald-700' : n.status === 'Perawatan' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}">
                     ${n.status}
                 </span>
             </td>
@@ -136,6 +154,11 @@ function displayResult(data) {
                 </div>
                 <h2 class="text-3xl font-bold text-slate-800 dark:text-white mb-1">${data.result}</h2>
                 <p class="text-slate-500">Confidence Level: <span class="font-bold text-primary">${data.confidence}%</span> dari ${data.k_value} Tetangga</p>
+                <div class="mt-3 flex justify-center gap-3 text-xs">
+                    <span class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded">Layak: ${data.votes.layak}</span>
+                    <span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded">Perawatan: ${data.votes.perawatan}</span>
+                    <span class="px-2 py-1 bg-red-100 text-red-700 rounded">Ganti: ${data.votes.ganti}</span>
+                </div>
             </div>
             
             <div class="bg-slate-50 dark:bg-slate-800/50 p-6">

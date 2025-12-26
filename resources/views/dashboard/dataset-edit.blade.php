@@ -46,43 +46,53 @@
                     placeholder="Masukkan nama sarana">
             </div>
             
-            <!-- Kondisi & Jumlah -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label for="kondisi" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        Kondisi <span class="text-red-500">*</span>
-                    </label>
-                    <select name="kondisi" id="kondisi" required 
-                        class="w-full rounded-lg border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 py-3 px-4 text-sm focus:ring-primary focus:border-primary dark:text-white">
-                        <option value="5" {{ old('kondisi', $inventaris->kondisi) == 5 ? 'selected' : '' }}>5 - Sangat Baik</option>
-                        <option value="4" {{ old('kondisi', $inventaris->kondisi) == 4 ? 'selected' : '' }}>4 - Baik</option>
-                        <option value="3" {{ old('kondisi', $inventaris->kondisi) == 3 ? 'selected' : '' }}>3 - Cukup</option>
-                        <option value="2" {{ old('kondisi', $inventaris->kondisi) == 2 ? 'selected' : '' }}>2 - Buruk</option>
-                        <option value="1" {{ old('kondisi', $inventaris->kondisi) == 1 ? 'selected' : '' }}>1 - Rusak Berat</option>
-                    </select>
-                    <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">
-                        <i data-lucide="info" class="w-3 h-3 inline mr-1"></i>
-                        Status akan dihitung otomatis dari kondisi
-                    </p>
-                </div>
-                <div>
-                    <label for="jumlah" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        Jumlah (Unit) <span class="text-red-500">*</span>
-                    </label>
-                    <input type="number" name="jumlah" id="jumlah" value="{{ old('jumlah', $inventaris->jumlah) }}" min="1" required 
-                        class="w-full rounded-lg border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 py-3 px-4 text-sm focus:ring-primary focus:border-primary dark:text-white"
-                        placeholder="0">
-                </div>
-            </div>
-            
             <!-- Tahun -->
             <div>
                 <label for="tahun" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    Tahun <span class="text-red-500">*</span>
+                    Tahun Pengadaan <span class="text-red-500">*</span>
                 </label>
                 <input type="number" name="tahun" id="tahun" value="{{ old('tahun', $inventaris->tahun) }}" min="1900" max="{{ date('Y') + 1 }}" required 
                     class="w-full rounded-lg border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 py-3 px-4 text-sm focus:ring-primary focus:border-primary dark:text-white"
                     placeholder="{{ date('Y') }}">
+            </div>
+            
+            <!-- Kondisi -->
+            <div>
+                <label for="kondisi" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    Kondisi Sarana <span class="text-red-500">*</span>
+                </label>
+                <select name="kondisi" id="kondisi" required 
+                    class="w-full rounded-lg border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 py-3 px-4 text-sm focus:ring-primary focus:border-primary dark:text-white">
+                    <option value="Baik" {{ old('kondisi', $inventaris->kondisi) == 'Baik' ? 'selected' : '' }}>Baik</option>
+                    <option value="Rusak Ringan" {{ old('kondisi', $inventaris->kondisi) == 'Rusak Ringan' ? 'selected' : '' }}>Rusak Ringan</option>
+                    <option value="Rusak Berat" {{ old('kondisi', $inventaris->kondisi) == 'Rusak Berat' ? 'selected' : '' }}>Rusak Berat</option>
+                </select>
+            </div>
+            
+            <!-- Tingkat Pemanfaatan -->
+            <div>
+                <label for="tingkat_pemanfaatan" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    Tingkat Pemanfaatan <span class="text-red-500">*</span>
+                </label>
+                <select name="tingkat_pemanfaatan" id="tingkat_pemanfaatan" required 
+                    class="w-full rounded-lg border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 py-3 px-4 text-sm focus:ring-primary focus:border-primary dark:text-white">
+                    <option value="Sering Digunakan" {{ old('tingkat_pemanfaatan', $inventaris->tingkat_pemanfaatan) == 'Sering Digunakan' ? 'selected' : '' }}>Sering Digunakan</option>
+                    <option value="Kadang Digunakan" {{ old('tingkat_pemanfaatan', $inventaris->tingkat_pemanfaatan) == 'Kadang Digunakan' ? 'selected' : '' }}>Kadang Digunakan</option>
+                    <option value="Tidak Digunakan" {{ old('tingkat_pemanfaatan', $inventaris->tingkat_pemanfaatan) == 'Tidak Digunakan' ? 'selected' : '' }}>Tidak Digunakan</option>
+                </select>
+            </div>
+            
+            <!-- Tingkat Kebutuhan -->
+            <div>
+                <label for="tingkat_kebutuhan" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    Tingkat Kebutuhan <span class="text-red-500">*</span>
+                </label>
+                <select name="tingkat_kebutuhan" id="tingkat_kebutuhan" required 
+                    class="w-full rounded-lg border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 py-3 px-4 text-sm focus:ring-primary focus:border-primary dark:text-white">
+                    <option value="Sangat Dibutuhkan" {{ old('tingkat_kebutuhan', $inventaris->tingkat_kebutuhan) == 'Sangat Dibutuhkan' ? 'selected' : '' }}>Sangat Dibutuhkan</option>
+                    <option value="Dibutuhkan" {{ old('tingkat_kebutuhan', $inventaris->tingkat_kebutuhan) == 'Dibutuhkan' ? 'selected' : '' }}>Dibutuhkan</option>
+                    <option value="Sangat Tidak Dibutuhkan" {{ old('tingkat_kebutuhan', $inventaris->tingkat_kebutuhan) == 'Sangat Tidak Dibutuhkan' ? 'selected' : '' }}>Sangat Tidak Dibutuhkan</option>
+                </select>
             </div>
             
             <!-- Info Status -->
@@ -91,18 +101,21 @@
                     <i data-lucide="info" class="w-4 h-4 mr-2"></i>
                     Keterangan Status Otomatis
                 </h4>
+                <p class="text-sm text-slate-600 dark:text-slate-400 mb-3">
+                    Status kelayakan dihitung dari skor total 3 variabel (masing-masing bernilai 1-3):
+                </p>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
                     <div class="flex items-center gap-2">
                         <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
-                        <span class="text-slate-600 dark:text-slate-400">Kondisi 4-5 = <strong class="text-emerald-600">Layak</strong></span>
+                        <span class="text-slate-600 dark:text-slate-400">Skor ≥ 7 = <strong class="text-emerald-600">Layak</strong></span>
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
-                        <span class="text-slate-600 dark:text-slate-400">Kondisi 3 = <strong class="text-yellow-600">Perawatan</strong></span>
+                        <span class="text-slate-600 dark:text-slate-400">Skor 5-6 = <strong class="text-yellow-600">Perawatan</strong></span>
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="w-3 h-3 rounded-full bg-red-500"></span>
-                        <span class="text-slate-600 dark:text-slate-400">Kondisi 1-2 = <strong class="text-red-600">Perlu Diganti</strong></span>
+                        <span class="text-slate-600 dark:text-slate-400">Skor ≤ 4 = <strong class="text-red-600">Perlu Diganti</strong></span>
                     </div>
                 </div>
             </div>

@@ -142,7 +142,7 @@
             <!-- Footer Links -->
             <div class="mt-6 text-center">
                 <p class="text-sm text-slate-500 dark:text-slate-400">
-                    © 2024 SmartSPK. All rights reserved.
+                    © 2025 SmartSPK. All rights reserved.
                 </p>
             </div>
         </div>

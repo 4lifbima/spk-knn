@@ -16,7 +16,7 @@
                 <p class="text-xs text-slate-500">
                     {{ $item->created_at->format('d/m/Y H:i') }} • 
                     K={{ $item->k_value }} • 
-                    Input: Kondisi {{ $item->input_kondisi }}, Jml: {{ $item->input_jumlah }}
+                    {{ $item->input_kondisi }}, {{ $item->input_pemanfaatan }}, {{ $item->input_kebutuhan }}
                 </p>
             </div>
         </div>
@@ -65,7 +65,7 @@ async function showDetail(id) {
                 <td class="py-2 px-3">${n.nama}</td>
                 <td class="py-2 px-3 text-right font-mono">${n.distance.toFixed(4)}</td>
                 <td class="py-2 px-3 text-right">
-                    <span class="text-xs px-2 py-1 rounded-full ${n.status === 'Layak' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}">
+                    <span class="text-xs px-2 py-1 rounded-full ${n.status === 'Layak' ? 'bg-emerald-100 text-emerald-700' : n.status === 'Perawatan' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}">
                         ${n.status}
                     </span>
                 </td>
@@ -89,7 +89,7 @@ async function showDetail(id) {
                     </div>
                     <div class="bg-slate-50 dark:bg-slate-800 p-3 rounded-lg">
                         <p class="text-xs text-slate-500 mb-1">Input</p>
-                        <p class="font-bold text-slate-800 dark:text-white">K:${data.input_kondisi}, J:${data.input_jumlah}</p>
+                        <p class="font-bold text-slate-800 dark:text-white text-xs">${data.input_kondisi}, ${data.input_pemanfaatan}, ${data.input_kebutuhan}</p>
                     </div>
                 </div>
                 

@@ -19,6 +19,9 @@ class InventarisController extends Controller
             $query->where(function($q) use ($search) {
                 $q->where('nama', 'like', "%{$search}%")
                   ->orWhere('tahun', 'like', "%{$search}%")
+                  ->orWhere('kondisi', 'like', "%{$search}%")
+                  ->orWhere('tingkat_pemanfaatan', 'like', "%{$search}%")
+                  ->orWhere('tingkat_kebutuhan', 'like', "%{$search}%")
                   ->orWhere('status', 'like', "%{$search}%");
             });
         }
@@ -40,30 +43,27 @@ class InventarisController extends Controller
     {
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
-            'kondisi' => 'required|integer|min:1|max:5',
-            'jumlah' => 'required|integer|min:1',
             'tahun' => 'required|integer|min:1900|max:' . (date('Y') + 1),
+            'kondisi' => 'required|in:Baik,Rusak Ringan,Rusak Berat',
+            'tingkat_pemanfaatan' => 'required|in:Sering Digunakan,Kadang Digunakan,Tidak Digunakan',
+            'tingkat_kebutuhan' => 'required|in:Sangat Dibutuhkan,Dibutuhkan,Sangat Tidak Dibutuhkan',
         ]);
 
-        // Determine status based on kondisi
-        if ($validated['kondisi'] >= 4) {
-            $status = 'Layak';
-            $statusVal = 1;
-        } elseif ($validated['kondisi'] == 3) {
-            $status = 'Perawatan';
-            $statusVal = 0.5;
-        } else {
-            $status = 'Perlu Diganti';
-            $statusVal = 0;
-        }
+        // Calculate status from 3 variables
+        $statusData = Inventaris::calculateStatus(
+            $validated['kondisi'],
+            $validated['tingkat_pemanfaatan'],
+            $validated['tingkat_kebutuhan']
+        );
 
         $inventaris->update([
             'nama' => $validated['nama'],
-            'kondisi' => $validated['kondisi'],
-            'jumlah' => $validated['jumlah'],
             'tahun' => $validated['tahun'],
-            'status' => $status,
-            'status_val' => $statusVal,
+            'kondisi' => $validated['kondisi'],
+            'tingkat_pemanfaatan' => $validated['tingkat_pemanfaatan'],
+            'tingkat_kebutuhan' => $validated['tingkat_kebutuhan'],
+            'status' => $statusData['status'],
+            'status_val' => $statusData['status_val'],
         ]);
 
         return redirect()->route('dataset.index')->with('success', 'Data inventaris berhasil diperbarui');
@@ -73,30 +73,27 @@ class InventarisController extends Controller
     {
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
-            'kondisi' => 'required|integer|min:1|max:5',
-            'jumlah' => 'required|integer|min:1',
             'tahun' => 'required|integer|min:1900|max:' . (date('Y') + 1),
+            'kondisi' => 'required|in:Baik,Rusak Ringan,Rusak Berat',
+            'tingkat_pemanfaatan' => 'required|in:Sering Digunakan,Kadang Digunakan,Tidak Digunakan',
+            'tingkat_kebutuhan' => 'required|in:Sangat Dibutuhkan,Dibutuhkan,Sangat Tidak Dibutuhkan',
         ]);
 
-        // Determine status based on kondisi
-        if ($validated['kondisi'] >= 4) {
-            $status = 'Layak';
-            $statusVal = 1;
-        } elseif ($validated['kondisi'] == 3) {
-            $status = 'Perawatan';
-            $statusVal = 0.5;
-        } else {
-            $status = 'Perlu Diganti';
-            $statusVal = 0;
-        }
+        // Calculate status from 3 variables
+        $statusData = Inventaris::calculateStatus(
+            $validated['kondisi'],
+            $validated['tingkat_pemanfaatan'],
+            $validated['tingkat_kebutuhan']
+        );
 
         Inventaris::create([
             'nama' => $validated['nama'],
-            'kondisi' => $validated['kondisi'],
-            'jumlah' => $validated['jumlah'],
             'tahun' => $validated['tahun'],
-            'status' => $status,
-            'status_val' => $statusVal,
+            'kondisi' => $validated['kondisi'],
+            'tingkat_pemanfaatan' => $validated['tingkat_pemanfaatan'],
+            'tingkat_kebutuhan' => $validated['tingkat_kebutuhan'],
+            'status' => $statusData['status'],
+            'status_val' => $statusData['status_val'],
         ]);
 
         return redirect()->route('dataset.index')->with('success', 'Data inventaris berhasil ditambahkan');

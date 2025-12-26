@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="icon" href="{{ asset('icon.png') }}" type="image/x-icon">
+    <link rel="apple-touch-icon" href="{{ asset('icon.png') }}" type="image/x-icon">
+    <link rel="shortcuts icon" href="{{ asset('icon.png') }}" type="image/x-icon">
     <title>@yield('title', 'SPK KNN - Analisis Inventaris')</title>
     
     <!-- Fonts: Plus Jakarta Sans -->
@@ -184,10 +187,10 @@
                     </button>
 
                     <!-- Notifications -->
-                    <button class="relative p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500">
+                    <a href="{{ route('history.index') }}" class="relative p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500">
                         <i data-lucide="bell" class="w-5 h-5"></i>
                         <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-darkCard"></span>
-                    </button>
+                    </a>
                 </div>
             </header>
 
