@@ -20,6 +20,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dataset', [InventarisController::class, 'index'])->name('dataset.index');
     Route::post('/dataset', [InventarisController::class, 'store'])->name('dataset.store');
     Route::post('/dataset/import', [InventarisController::class, 'import'])->name('dataset.import');
+    Route::get('/dataset/{inventaris}/edit', [InventarisController::class, 'edit'])->name('dataset.edit');
+    Route::put('/dataset/{inventaris}', [InventarisController::class, 'update'])->name('dataset.update');
     Route::delete('/dataset/{inventaris}', [InventarisController::class, 'destroy'])->name('dataset.destroy');
     
     // Preprocessing

@@ -1,59 +1,349 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🎓 SPK Smart - Sistem Pendukung Keputusan K-Nearest Neighbors
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplikasi web berbasis Laravel 12 untuk analisis kelayakan inventaris menggunakan algoritma K-Nearest Neighbors (KNN).
 
-## About Laravel
+## 🌟 Fitur Utama
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- ✅ **Dashboard Overview** - Statistik real-time inventaris
+- ✅ **Manajemen Dataset** - CRUD data inventaris dengan auto-status
+- ✅ **Preprocessing** - Visualisasi normalisasi Min-Max
+- ✅ **Proses KNN** - Kalkulasi dengan Euclidean Distance
+- ✅ **Riwayat Analisis** - Track semua perhitungan dengan detail
+- ✅ **Profile Management** - Update profil & foto (tanpa storage link)
+- ✅ **Password Settings** - Ubah kata sandi dengan validasi
+- ✅ **Dark Mode** - Toggle tema terang/gelap (persistent)
+- ✅ **Responsive Design** - Mobile-friendly & modern UI
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🛠️ Tech Stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Backend**: Laravel 12, PHP 8.2
+- **Auth**: Laravel Breeze
+- **Database**: MySQL/MariaDB
+- **Frontend**: Tailwind CSS (via CDN), Lucide Icons
+- **Font**: Plus Jakarta Sans
 
-## Learning Laravel
+## 📦 Instalasi Cepat
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+```bash
+# 1. Clone atau extract project
+git clone https://github.com/4lifbima/spk-knn.git
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+# 2. Install dependencies
+composer install
 
-## Laravel Sponsors
+# 3. Setup environment
+cp .env.example .env
+php artisan key:generate
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+# 4. Konfigurasi database di .env
+DB_DATABASE=spk_smart
+DB_USERNAME=root
+DB_PASSWORD=
 
-### Premium Partners
+# 5. Jalankan migration & seeder
+php artisan migrate
+php artisan db:seed --class=InventarisSeeder
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+# 6. Buat folder upload
+mkdir -p public/uploads/profile
+chmod -R 775 public/uploads
 
-## Contributing
+# 7. Jalankan aplikasi
+php artisan serve
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Akses: `http://localhost:8000`
 
-## Code of Conduct
+## 📂 File Structure
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```
+app/
+├── Http/
+│   ├── Controllers/
+│   │   ├── DashboardController.php      # Dashboard overview
+│   │   ├── InventarisController.php     # CRUD dataset
+│   │   ├── KnnController.php            # Proses KNN & preprocessing
+│   │   ├── HistoryController.php        # Riwayat analisis
+│   │   ├── ProfileController.php        # Update profil (modified)
+│   │   └── SettingsController.php       # Password settings (NEW)
+│   └── Requests/
+│       └── ProfileUpdateRequest.php
+├── Models/
+│   ├── User.php                         # Updated with relations
+│   ├── Inventaris.php
+│   └── HistoryKnn.php
+database/
+├── migrations/
+│   ├── xxxx_add_profile_fields_to_users_table.php
+│   ├── xxxx_create_inventaris_table.php
+│   └── xxxx_create_history_knn_table.php
+└── seeders/
+    └── InventarisSeeder.php
+resources/views/dashboard/
+├── layout.blade.php                     # Main layout
+├── index.blade.php                      # Dashboard
+├── dataset.blade.php                    # Dataset management
+├── preprocessing.blade.php              # Preprocessing view
+├── process.blade.php                    # KNN process
+├── history.blade.php                    # History list
+├── profile.blade.php                    # Profile edit
+└── settings.blade.php                   # Password settings (NEW)
+routes/
+└── web.php                              # All routes
+```
 
-## Security Vulnerabilities
+## 🎯 Routes
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+| Method | URI | Controller | Name |
+|--------|-----|------------|------|
+| GET | /dashboard | DashboardController@index | dashboard |
+| GET | /dataset | InventarisController@index | dataset.index |
+| POST | /dataset | InventarisController@store | dataset.store |
+| DELETE | /dataset/{id} | InventarisController@destroy | dataset.destroy |
+| GET | /preprocessing | KnnController@preprocessing | preprocessing |
+| GET | /process | KnnController@index | process.index |
+| POST | /process/calculate | KnnController@calculate | process.calculate |
+| GET | /history | HistoryController@index | history.index |
+| GET | /history/{id} | HistoryController@show | history.show |
+| GET | /profile | ProfileController@edit | profile.edit |
+| PATCH | /profile | ProfileController@update | profile.update |
+| GET | /settings | SettingsController@index | settings.index |
+| PATCH | /settings/password | SettingsController@updatePassword | settings.password |
 
-## License
+## 💾 Database Schema
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Users Table
+```
+- id
+- name
+- username (unique, nullable)
+- email (unique)
+- password
+- role (default: 'Kepala Bagian Sarana')
+- photo (nullable, stored in public/uploads/profile/)
+- timestamps
+```
+
+### Inventaris Table
+```
+- id
+- nama
+- kondisi (1-5)
+- jumlah
+- tahun
+- status (Layak/Perlu Diganti/Perawatan)
+- status_val (0, 0.5, 1)
+- timestamps
+```
+
+### History KNN Table
+```
+- id
+- user_id (foreign)
+- k_value
+- input_kondisi
+- input_jumlah
+- result
+- confidence
+- neighbors (JSON)
+- timestamps
+```
+
+## 🎨 Design Features
+
+### Preserved from Original HTML
+✅ Warna primary: `#301CA0`  
+✅ Font: Plus Jakarta Sans  
+✅ Layout sidebar + content area  
+✅ Grid responsif (1/2/3/4 columns)  
+✅ Dark mode toggle dengan localStorage  
+✅ Lucide icons  
+✅ Smooth animations (fadeUp)  
+✅ Custom scrollbar  
+
+### Menu Sidebar
+1. Dashboard
+2. Dataset Sarana
+3. Preprocessing
+4. Proses KNN
+5. Riwayat
+6. Profil
+7. **Pengaturan** (NEW - untuk ubah password)
+8. Logout
+
+## 🔐 Authentication
+
+Menggunakan Laravel Breeze:
+- Register: `/register`
+- Login: `/login`
+- Logout: Form POST ke `/logout`
+
+Kredensial Login:
+Role: ***Kepala Bagian Sarana***
+Email: `sendy@gmail.com`
+Password: `password123`
+
+## 📸 Upload Foto
+
+**PENTING**: Foto profil TIDAK menggunakan `storage:link`
+
+```php
+// Lokasi penyimpanan
+public/uploads/profile/TIMESTAMP_FILENAME.jpg
+
+// Akses di view
+<img src="{{ asset($user->photo) }}">
+
+// Contoh: public/uploads/profile/1703123456_avatar.jpg
+```
+
+Pastikan folder exists & writable:
+```bash
+mkdir -p public/uploads/profile
+chmod -R 775 public/uploads
+```
+
+## 🧮 Algoritma KNN
+
+### Normalisasi Min-Max
+```
+x' = (x - min) / (max - min)
+```
+
+### Euclidean Distance
+```
+d = √Σ(xi - yi)²
+```
+
+### Voting
+- K = jumlah tetangga terdekat (1, 3, 5, 7)
+- Majority vote dari K tetangga
+- Confidence = (max_vote / K) × 100%
+
+## 📝 Usage Examples
+
+### 1. Tambah Data Inventaris
+```
+Nama: Komputer Desktop HP
+Kondisi: 4 (Baik)
+Jumlah: 15
+Tahun: 2022
+→ Auto Status: "Layak" (kondisi >= 4)
+```
+
+### 2. Proses KNN
+```
+Input:
+- K Value: 3
+- Kondisi: 5
+- Jumlah: 10
+
+Output:
+- 3 Tetangga Terdekat dengan jarak
+- Hasil: "Layak Digunakan" / "Perlu Diganti"
+- Confidence: 100% (3/3) atau 66.7% (2/3)
+```
+
+### 3. Update Profil
+```
+Form Fields:
+- Nama Lengkap
+- Username
+- Email
+- Role
+- Foto Profil (JPG/PNG, max 2MB)
+
+→ Foto tersimpan di public/uploads/profile/
+```
+
+### 4. Ubah Password
+```
+Form Fields:
+- Kata Sandi Saat Ini
+- Kata Sandi Baru (min 8 karakter)
+- Konfirmasi Kata Sandi Baru
+
+Validasi:
+- Current password harus benar
+- New password minimal 8 karakter
+- Confirmation harus match
+```
+
+## 🐛 Troubleshooting
+
+### Error: SQLSTATE Connection Refused
+```bash
+# Check MySQL service
+sudo systemctl start mysql
+
+# Atau update .env
+DB_HOST=127.0.0.1
+DB_PORT=3306
+```
+
+### Error: Permission denied (upload)
+```bash
+chmod -R 775 public/uploads
+sudo chown -R $USER:www-data public/uploads
+```
+
+### Error: Route not found
+```bash
+php artisan route:clear
+php artisan cache:clear
+php artisan config:clear
+```
+
+### Dark mode tidak tersimpan
+Pastikan browser tidak dalam mode incognito/private
+
+### Foto tidak muncul
+```bash
+# Check file exists
+ls -la public/uploads/profile/
+
+# Check permissions
+chmod 644 public/uploads/profile/*
+```
+
+## 🚀 Production Deployment
+
+```bash
+# Optimize
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# Set environment
+APP_ENV=production
+APP_DEBUG=false
+```
+
+## 📊 Data Sample
+
+Seeder menyediakan 8 data inventaris:
+1. Laptop Dell XPS (Layak)
+2. Proyektor Epson (Perlu Diganti)
+3. Meja Kantor Kayu (Layak)
+4. Kursi Staff (Perlu Diganti)
+5. AC Panasonic 2PK (Perawatan)
+6. Printer HP LaserJet (Layak)
+7. Router Cisco (Layak)
+8. Lemari Arsip Besi (Perlu Diganti)
+
+## 🎓 Credits
+
+- **Framework**: Laravel 12
+- **Auth**: Laravel Breeze
+- **UI**: Tailwind CSS + Lucide Icons
+- **Font**: Plus Jakarta Sans (Google Fonts)
+- **Algorithm**: K-Nearest Neighbors
+
+## 📄 License
+
+Open source - bebas digunakan untuk keperluan edukasi & Tugas Kuliah.
+
+---
+
+**Developed with ❤️ using Laravel 12**
+Alif Bima Pradana

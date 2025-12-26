@@ -13,7 +13,8 @@ class HistoryKnn extends Model
         'user_id',
         'k_value',
         'input_kondisi',
-        'input_jumlah',
+        'input_pemanfaatan',
+        'input_kebutuhan',
         'result',
         'confidence',
         'neighbors',
@@ -21,8 +22,6 @@ class HistoryKnn extends Model
 
     protected $casts = [
         'k_value' => 'integer',
-        'input_kondisi' => 'integer',
-        'input_jumlah' => 'integer',
         'confidence' => 'float',
         'neighbors' => 'array',
         'created_at' => 'datetime',

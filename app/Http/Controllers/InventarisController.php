@@ -9,40 +9,91 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class InventarisController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $dataset = Inventaris::orderBy('created_at', 'desc')->get();
-        return view('dashboard.dataset', compact('dataset'));
+        $query = Inventaris::query();
+        
+        // Search functionality
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%")
+                  ->orWhere('tahun', 'like', "%{$search}%")
+                  ->orWhere('kondisi', 'like', "%{$search}%")
+                  ->orWhere('tingkat_pemanfaatan', 'like', "%{$search}%")
+                  ->orWhere('tingkat_kebutuhan', 'like', "%{$search}%")
+                  ->orWhere('status', 'like', "%{$search}%");
+            });
+        }
+        
+        // Get per page value from request or default to 10
+        $perPage = $request->get('per_page', 10);
+        
+        $dataset = $query->orderBy('created_at', 'desc')->paginate($perPage)->appends($request->query());
+        
+        return view('dashboard.dataset', compact('dataset', 'perPage'));
+    }
+    
+    public function edit(Inventaris $inventaris)
+    {
+        return view('dashboard.dataset-edit', compact('inventaris'));
+    }
+    
+    public function update(Request $request, Inventaris $inventaris)
+    {
+        $validated = $request->validate([
+            'nama' => 'required|string|max:255',
+            'tahun' => 'required|integer|min:1900|max:' . (date('Y') + 1),
+            'kondisi' => 'required|in:Baik,Rusak Ringan,Rusak Berat',
+            'tingkat_pemanfaatan' => 'required|in:Sering Digunakan,Kadang Digunakan,Tidak Digunakan',
+            'tingkat_kebutuhan' => 'required|in:Sangat Dibutuhkan,Dibutuhkan,Sangat Tidak Dibutuhkan',
+        ]);
+
+        // Calculate status from 3 variables
+        $statusData = Inventaris::calculateStatus(
+            $validated['kondisi'],
+            $validated['tingkat_pemanfaatan'],
+            $validated['tingkat_kebutuhan']
+        );
+
+        $inventaris->update([
+            'nama' => $validated['nama'],
+            'tahun' => $validated['tahun'],
+            'kondisi' => $validated['kondisi'],
+            'tingkat_pemanfaatan' => $validated['tingkat_pemanfaatan'],
+            'tingkat_kebutuhan' => $validated['tingkat_kebutuhan'],
+            'status' => $statusData['status'],
+            'status_val' => $statusData['status_val'],
+        ]);
+
+        return redirect()->route('dataset.index')->with('success', 'Data inventaris berhasil diperbarui');
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
-            'kondisi' => 'required|integer|min:1|max:5',
-            'jumlah' => 'required|integer|min:1',
             'tahun' => 'required|integer|min:1900|max:' . (date('Y') + 1),
+            'kondisi' => 'required|in:Baik,Rusak Ringan,Rusak Berat',
+            'tingkat_pemanfaatan' => 'required|in:Sering Digunakan,Kadang Digunakan,Tidak Digunakan',
+            'tingkat_kebutuhan' => 'required|in:Sangat Dibutuhkan,Dibutuhkan,Sangat Tidak Dibutuhkan',
         ]);
 
-        // Determine status based on kondisi
-        if ($validated['kondisi'] >= 4) {
-            $status = 'Layak';
-            $statusVal = 1;
-        } elseif ($validated['kondisi'] == 3) {
-            $status = 'Perawatan';
-            $statusVal = 0.5;
-        } else {
-            $status = 'Perlu Diganti';
-            $statusVal = 0;
-        }
+        // Calculate status from 3 variables
+        $statusData = Inventaris::calculateStatus(
+            $validated['kondisi'],
+            $validated['tingkat_pemanfaatan'],
+            $validated['tingkat_kebutuhan']
+        );
 
         Inventaris::create([
             'nama' => $validated['nama'],
-            'kondisi' => $validated['kondisi'],
-            'jumlah' => $validated['jumlah'],
             'tahun' => $validated['tahun'],
-            'status' => $status,
-            'status_val' => $statusVal,
+            'kondisi' => $validated['kondisi'],
+            'tingkat_pemanfaatan' => $validated['tingkat_pemanfaatan'],
+            'tingkat_kebutuhan' => $validated['tingkat_kebutuhan'],
+            'status' => $statusData['status'],
+            'status_val' => $statusData['status_val'],
         ]);
 
         return redirect()->route('dataset.index')->with('success', 'Data inventaris berhasil ditambahkan');

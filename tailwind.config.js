@@ -9,12 +9,20 @@ export default {
         './resources/views/**/*.blade.php',
     ],
 
+    darkMode: 'class',
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                sans: ['"Plus Jakarta Sans"', 'sans-serif'],
             },
-        },
+            colors: {
+                primary: '#301CA0',
+                primaryHover: '#241480',
+                secondary: '#64748B',
+                darkBg: '#0F172A',
+                darkCard: '#1E293B'
+            }
+        }
     },
 
     plugins: [forms],

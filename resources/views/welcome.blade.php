@@ -3,7 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ asset('icon.png') }}" type="image/x-icon">
+    <link rel="apple-touch-icon" href="{{ asset('icon.png') }}" type="image/x-icon">
+    <link rel="shortcuts icon" href="{{ asset('icon.png') }}" type="image/x-icon">
     <title>SmartSPK - Sistem Pendukung Keputusan Inventaris</title>
+    <meta name="description" content="Sistem Pendukung Keputusan menggunakan metode KNN K-Nearest Neighbor untuk inventarisasi barang di SMK Negeri 1 Kota Gorontalo">
+    <meta name="keywords" content="Sistem Pendukung Keputusan, KNN, K-Nearest Neighbor, inventarisasi, barang, SMK Negeri 1 Kota Gorontalo">
+    <meta name="author" content="SMK Negeri 1 Kota Gorontalo">
+
+    {{-- meta tag Og --}}
+    <meta property="og:title" content="SmartSPK - Sistem Pendukung Keputusan Inventaris">
+    <meta property="og:description" content="Sistem Pendukung Keputusan menggunakan metode KNN K-Nearest Neighbor untuk inventarisasi barang di SMK Negeri 1 Kota Gorontalo">
+    <meta property="og:url" content="{{ url('/') }}">
+    <meta property="og:site_name" content="SmartSPK">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="{{ asset('icon.png') }}">
+    <meta property="og:image:alt" content="SmartSPK - Sistem Pendukung Keputusan Inventaris">
+    <meta property="og:image:width" content="1024">
+    <meta property="og:image:height" content="1024">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="SmartSPK - Sistem Pendukung Keputusan Inventaris">
+    <meta name="twitter:description" content="Sistem Pendukung Keputusan menggunakan metode KNN K-Nearest Neighbor untuk inventarisasi barang di SMK Negeri 1 Kota Gorontalo">
+    <meta name="twitter:url" content="{{ url('/') }}">
+    <meta name="twitter:site" content="@smkn1kotagorontalo">
+    <meta name="twitter:creator" content="@smkn1kotagorontalo">
+    <meta name="twitter:image" content="{{ asset('icon.png') }}">
+    <meta name="twitter:image:alt" content="SmartSPK - Sistem Pendukung Keputusan Inventaris">
+
+    {{-- canonical --}}
+    <link rel="canonical" href="{{ url('/') }}">
     
     <!-- Fonts: Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
