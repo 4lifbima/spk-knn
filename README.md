@@ -173,10 +173,15 @@ routes/
 
 ## 🔐 Authentication
 
-Menggunakan Laravel Breeze (sudah terinstall):
+Menggunakan Laravel Breeze:
 - Register: `/register`
 - Login: `/login`
 - Logout: Form POST ke `/logout`
+
+Kredensial Login:
+Role: ***Kepala Bagian Sarana***
+Email: `sendy@gmail.com`
+Password: `password123`
 
 ## 📸 Upload Foto
 
